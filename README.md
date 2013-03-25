@@ -21,11 +21,22 @@ endpoint | method | description
 
 
 ### Querying Objects
-`GET /library?where={"id": "12345"}`
+#### Filtering
+`GET /library?filter={"id": "12345"}`
 
-`GET /library?where={"book": "bk101"}`
+`GET /library?filter={"book": "bk101"}`
 
-`GET /library?where={"publish_date": {"$gte": 1990}}`
+`GET /library?filter={"publish_date": {"$gte": 1990}}`
+
+#### Order By
+
+`GET /library?orderBy={"book": "asc"}`
+
+`GET /library?orderBy={"book": "desc"}`
+
+#### Limit
+
+`GET /library?limit=10`
 
 ### Deleting Objects
 
