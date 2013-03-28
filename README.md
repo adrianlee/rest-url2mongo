@@ -1,5 +1,5 @@
 # Authentication
-Basic Authorization via HTTP Headers
+## Basic Authorization via HTTP Headers
 
 Each HTTP request should include the follow header which provides a users's credentials via the basic access authentication method. The base64 string is the encoded string "username:password"
 `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
@@ -7,6 +7,16 @@ Each HTTP request should include the follow header which provides a users's cred
 Each request will do a quick lookup with the DB for valid user credentials.
 
 Idealy, we would want requests to be served through a secure connection via HTTPS protocol.
+
+Users should be stored in the 'User' collection which only the admin has access permissions.
+
+## Cookies
+
+After a successful HTTP request with authentication credentials, the server should generate a hash with a timeout timestamp which indicates the cookie's expiration date.
+
+This hash should be stored in memory and could contain relevant session information such as a users information needed for future requests which do not require a DB lookup on the Users collections.
+
+The generated hashes for each unqiue user should persist and be passed around in `Cookie` field of the the reqeust and response headers of each request.
 
 # Endpoints
 Querystring parameters:
@@ -75,10 +85,7 @@ Document id: "12345"
 
 `GET /library?limit=10`
 
-## <a name="Deleting"></a>Deleting Objects
-
-## Other query conditions which we may implement/map
-
+### Other query conditions which we may implement/map
 - or
 - nor
 - and
@@ -90,6 +97,9 @@ Document id: "12345"
 - in
 - nin
 
+## <a name="Deleting"></a>Deleting Objects
+
+
 `DELETE /library/12345`
 
 Maps to:
@@ -97,3 +107,16 @@ Maps to:
 Method: remove()
 Collection: library
 Document id: "12345"
+
+
+
+# Response Codes
+
+Similar to Lab 3, request results are indicated by the HTTP status code. A 2xx status code indicates success, whereas a 4xx status code indicates failure. When a request fails, the response body is still JSON, but always contains the fields code and error which you can inspect to use for debugging.
+
+``` json
+{
+  "error": "cannot find document",
+  "code": 404
+}
+```
