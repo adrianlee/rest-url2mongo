@@ -73,6 +73,8 @@ Document id: "12345"
 
 `GET /library?filter={"book": "bk101"}`
 
+`GET /library?filter={"book.publisher": "oreilly"}`
+
 `GET /library?filter={"publish_date": {"$gte": 1990}}`
 
 ### Order By
