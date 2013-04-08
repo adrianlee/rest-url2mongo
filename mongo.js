@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/ecse489');
+mongoose.connect('mongodb://ecse:123@widmore.mongohq.com:10000/ecse489');
 
 module.exports = db = {};
 
