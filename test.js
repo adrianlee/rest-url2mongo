@@ -177,9 +177,7 @@ describe('General', function() {
       });
     });
   });
-
 });
-
 
 
 describe('Endpoints', function() {

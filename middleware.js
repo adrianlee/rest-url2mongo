@@ -2,6 +2,7 @@ var mongo =  require('./mongo');
 
 module.exports = middleware = {};
 
+// Set-Cookie if user doesn't already have 'ecse489'
 middleware.cookieHandler = function (req, res, next) {
   console.log('Cookie Middleware');
 
@@ -38,6 +39,7 @@ middleware.cookieHandler = function (req, res, next) {
 };
 
 
+// Basic Authentication Logic. Looks in headers for login credentials
 middleware.basicAuth = function (req, res, next) {
   console.log('Auth Middleware');
 
@@ -100,6 +102,7 @@ middleware.basicAuth = function (req, res, next) {
 };
 
 
+// Checks if user is an Admin
 middleware.isAdmin = function (req, res, next) {
   if (req.cookies.ecse489 && req.cookies.ecse489.is_admin) {
     next();
