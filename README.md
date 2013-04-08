@@ -19,6 +19,9 @@ This hash should be stored in memory and could contain relevant session informat
 The generated hashes for each unqiue user should persist and be passed around in `Cookie` field of the the reqeust and response headers of each request.
 
 ## Endpoints
+=======
+Set-Cookie: NAME=VALUE; expires=DATE;
+
 Querystring parameters:
 json
 
@@ -122,7 +125,6 @@ Similar to Lab 3, request results are indicated by the HTTP status code. A 2xx s
   "code": 404
 }
 ```
-
 
 
 # Run Test Suite
