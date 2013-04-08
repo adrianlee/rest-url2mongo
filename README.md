@@ -1,5 +1,5 @@
-# Authentication
-## Basic Authorization via HTTP Headers
+## Authentication
+### Basic Authorization via HTTP Headers
 
 Each HTTP request should include the follow header which provides a users's credentials via the basic access authentication method. The base64 string is the encoded string "username:password"
 `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
@@ -10,7 +10,7 @@ Idealy, we would want requests to be served through a secure connection via HTTP
 
 Users should be stored in the 'User' collection which only the admin has access permissions.
 
-## Cookies
+### Cookies
 
 After a successful HTTP request with authentication credentials, the server should generate a hash with a timeout timestamp which indicates the cookie's expiration date.
 
@@ -18,7 +18,7 @@ This hash should be stored in memory and could contain relevant session informat
 
 The generated hashes for each unqiue user should persist and be passed around in `Cookie` field of the the reqeust and response headers of each request.
 
-# Endpoints
+## Endpoints
 Querystring parameters:
 json
 
@@ -37,7 +37,7 @@ endpoint | method | description
 `/<collection>/<id>` | DELETE | [Deleting Objects](#Deleting)
 
 
-## <a name="Retrieving"></a>Retrieving
+### <a name="Retrieving"></a>Retrieving
 `GET /library/12345`
 
 Maps to:
@@ -47,7 +47,7 @@ Collection: "library"
 Document id: "12345"
 
 
-## <a name="Create"></a>Creating Objects
+### <a name="Create"></a>Creating Objects
 `POST /library`
 
 Maps to:
@@ -57,7 +57,7 @@ Collection: "library"
 
 
 
-## <a name="Updating"></a>Updating Objects
+### <a name="Updating"></a>Updating Objects
 `PUT /library/12345`
 
 Maps to:
@@ -67,8 +67,8 @@ Collection: "library"
 Document id: "12345"
 
 
-## <a name="Querying"></a>Querying Objects
-### Filtering
+### <a name="Querying"></a>Querying Objects
+#### Filtering
 `GET /library?filter={"id": "12345"}`
 
 `GET /library?filter={"book": "bk101"}`
@@ -77,17 +77,17 @@ Document id: "12345"
 
 `GET /library?filter={"publish_date": {"$gte": 1990}}`
 
-### Order By
+#### Order By
 
 `GET /library?orderBy={"book": "asc"}`
 
 `GET /library?orderBy={"book": "desc"}`
 
-### Limit
+#### Limit
 
 `GET /library?limit=10`
 
-### Other query conditions which we may implement/map
+#### Other query conditions which we may implement/map
 - or
 - nor
 - and
@@ -99,7 +99,7 @@ Document id: "12345"
 - in
 - nin
 
-## <a name="Deleting"></a>Deleting Objects
+### <a name="Deleting"></a>Deleting Objects
 
 
 `DELETE /library/12345`
@@ -112,7 +112,7 @@ Document id: "12345"
 
 
 
-# Response Codes
+## Response Codes
 
 Similar to Lab 3, request results are indicated by the HTTP status code. A 2xx status code indicates success, whereas a 4xx status code indicates failure. When a request fails, the response body is still JSON, but always contains the fields code and error which you can inspect to use for debugging.
 
@@ -121,4 +121,11 @@ Similar to Lab 3, request results are indicated by the HTTP status code. A 2xx s
   "error": "cannot find document",
   "code": 404
 }
+```
+
+
+
+# Run Test Suite
+```
+$ mocha --reporter spec
 ```
