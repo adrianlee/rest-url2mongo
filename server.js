@@ -3,6 +3,7 @@ var express = require('express');
 var app = express();
 var mongo =  require('./mongo');
 var middleware =  require('./middleware');
+var routes =  require('./routes');
 
 // Express Configuration
 app.use(express.logger('dev'));
@@ -21,112 +22,24 @@ app.use(function (err, req, res, next) {
   res.json(500, { error: (err ? err : 'Something Broke') });
 });
 
-// API Endpoints
-app.get('/', middleware.basicAuth, function (req, res) {
-  res.json({ msg: 'hello world', session: req.cookies.ecse489 || {} });
-});
+// General
+app.get('/', middleware.basicAuth, routes.index);
+app.get('/logout', routes.logout);
 
-app.get('/user', middleware.basicAuth, middleware.isAdmin, function (req, res) {
-  mongo.get('User')
-    .find({})
-    .select('-password -__v')
-    .exec(function (err, doc) {
-      if (err) return res.json(500, err);
-      console.log(err);
-      console.log(doc);
+// User
+app.get('/user', middleware.basicAuth, middleware.isAdmin, routes.user_listAll);
+app.get('/user/:username', middleware.basicAuth, middleware.isAdmin, routes.user_getByUsername);
+app.post('/user', routes.user_create);
+app.put('/user/:username', routes.user_update);
+app.delete('/user/:username', routes.user_delete);
 
-      // 200 OK
-      res.json(200, doc);
-    });
-});
+// Dynamic
+// app.get('/:collection', routes.retrieve_documents);
+// app.get('/:collection/:id', routes.retrieve_docuemnts_by_id);
+// app.post('/:collection', routes.create_document);
+// app.put('/:collection/:id', routes.update_document);
+// app.delete('/:collection/:id', routes.delete_document);
 
-app.get('/user/:username', middleware.basicAuth, middleware.isAdmin, function (req, res) {
-  mongo.get('User')
-    .findOne({ username: req.param('username')})
-    .select('-password -__v')
-    .exec(function (err, doc) {
-      if (err) return res.json(500, err);
-      console.log(err);
-      console.log(doc);
-
-      if (!doc) {
-        return res.json(404, { error: "User doesn't exist" });
-      }
-
-      // 200 OK
-      res.json(200, doc);
-    });
-});
-
-app.post('/user', function (req, res) {
-  if (!req.param('username') || !req.param('password')) {
-    // 400 Bad Request
-    return res.json(400, { error: "Missing Username Or Password fields" });
-  }
-
-  mongo.get('User').findOne({ username: req.param('username')}, function (err, doc) {
-    if (!doc) {
-      var newUser = new mongo.get('User')();
-
-      newUser.set('username', req.param('username'));
-      newUser.set('password', req.param('password'));
-      newUser.set('is_admin', req.param('is_admin') || false);
-
-      newUser.save(function (err, doc) {
-        if (err) return res.json(500, err);
-        console.log(err);
-
-        // 201 Created
-        return res.json(201, doc);
-      });
-    } else {
-      // 403 Forbidden
-      return res.json(403, { error: "Username already taken" });
-    }
-  });
-});
-
-app.put('/user/:username', function (req, res) {
-  console.log('updating ' + req.param('username'));
-  mongo.get('User')
-    .findOne({ username: req.param('username')})
-    .exec(function (err, doc) {
-      if (err) return res.json(500, err);
-
-      if (!doc) {
-        // 404 Not Found
-        return res.json(404, { error: "User doesn't exist" });
-      }
-
-      doc.update(req.body, {}, function (err, doc) {
-        if (err) return res.json(500, err);
-
-        // 202 Accepted
-        return res.json(202, {});
-      });
-    });
-});
-
-app.delete('/user/:username', function (req, res) {
-  mongo.get('User')
-    .findOneAndRemove({ username: req.param('username')})
-    .exec(function (err, doc) {
-      if (err) return res.json(err);
-
-      if (doc) {
-        return res.json(200, doc);
-      }
-
-      res.json(404, { error: "User doesn't exist" })
-    });
-});
-
-app.get('/logout', function (req, res) {
-  res.clearCookie('ecse489');
-
-  // 200 OK
-  res.json(200, { msg: 'logged out' });
-});
 
 
 // Start server on port 8080

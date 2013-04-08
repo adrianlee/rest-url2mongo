@@ -126,6 +126,18 @@ Similar to Lab 3, request results are indicated by the HTTP status code. A 2xx s
 }
 ```
 
+- 200 OK
+- 201 CREATED
+- 202 ACCEPTED
+- 400 BAD REQUEST
+- 401 UNAUTHORIZED
+- 402 PAYMENT REQUIRED
+- 403 FORBIDDEN
+- 404 NOT FOUND
+- 405 METHOD NOT ALLOWED
+- 500 INTERAL SERVER ERROR
+- 501 NOT IMPLEMENTED
+
 
 # Run Test Suite
 ```
