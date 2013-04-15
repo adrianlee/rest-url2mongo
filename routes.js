@@ -129,7 +129,7 @@ routes.retrieve_documents = function (req, res) {
     .exec(function (err, doc) {
       if (err) return res.json(404, { error: err });
 
-      if (!doc) return res.json(200, { error: "Document Not found" });
+      if (!doc) return res.json(404, { error: "Document Not found" });
 
       res.json(200, doc);
     });
@@ -144,7 +144,7 @@ routes.retrieve_docuemnts_by_id = function (req, res) {
     .exec(function (err, doc) {
       if (err) return res.json(404, { error: err });
 
-      if (!doc) return res.json(200, { error: "Document Not found" });
+      if (!doc) return res.json(404, { error: "Document Not found" });
 
       res.json(200, doc);
     });
@@ -156,7 +156,7 @@ routes.create_document = function (req, res) {
   var newDoc = mongo.get(req.param('collection'))(req.body);
 
   newDoc.save(function (err, doc) {
-    if (err) return res.json(505, { error: err });
+    if (err) return res.json(500, { error: err });
 
     res.json(201, doc);
   });
@@ -165,11 +165,37 @@ routes.create_document = function (req, res) {
 routes.update_document = function (req, res) {
   console.log(req.param('collection'));
   console.log(req.param('id'));
-  res.json(200);
+
+  mongo.get(req.param('collection'))
+    .update({ _id: req.param('id') }, req.body, { upsert: true }, function (err, num, doc) {
+      if (err) return res.json(404, { error: err });
+
+      if (!num || !doc) {
+        return res.json(404, { error: "Unable to find doc" });
+      }
+
+      res.json(202, doc);
+    });
 };
 
 routes.delete_document = function (req, res) {
   console.log(req.param('collection'));
   console.log(req.param('id'));
-  res.json(200);
+
+  // Delete Document
+  mongo.get(req.param('collection')).findByIdAndRemove(req.param('id'), function (err, doc) {
+    if (err) return res.json(404, { error: err });
+    res.json(200);
+  });
 };
+
+routes.delete_documents = function (req, res) {
+  console.log(req.param('collection'));
+
+  // Delete Collection
+  mongo.get(req.param('collection')).remove({}, function (err) {
+    if (err) return res.json(404, { error: err });
+    res.json(200);
+  });
+};
+

@@ -190,11 +190,53 @@ describe('Endpoints', function() {
       });
     });
 
+
+    it('Create First Document in a \'DELETE\' collection', function(done) {
+      var req_body = {};
+
+      request.post("http://localhost:3000/delete/", { json: req_body }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        body._id.should.be.ok;
+        res.statusCode.should.equal(201);
+        done();
+      });
+    });
+
+    it('Create Second Document in a \'DELETE\' collection', function(done) {
+      var req_body = {};
+
+      request.post("http://localhost:3000/delete/", { json: req_body }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        body._id.should.be.ok;
+        res.statusCode.should.equal(201);
+        done();
+      });
+    });
+
+    it('Delete all documents in the \'DELETE\' collection', function(done) {
+      request("http://localhost:3000/delete", { method: "delete", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+  });
+
+  describe('Documents', function() {
     it('Get Document By ID that doesn\'t exist', function(done) {
       request("http://localhost:3000/omg/123", { json: true }, function (err, res, body) {
         // console.log(body); // returns error: CastError
         body.error.should.be.ok;
         res.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    it('Get Document By ID that exist', function(done) {
+      request("http://localhost:3000/test/516b492562be100000000002", { json: true }, function (err, res, body) {
+        // console.log(body); // returns error: CastError
+        body._id.should.be.ok;
+        res.statusCode.should.equal(200);
         done();
       });
     });
@@ -207,7 +249,7 @@ describe('Endpoints', function() {
       };
 
       request.post("http://localhost:3000/test/", { json: req_body }, function (err, res, body) {
-        console.log(body); // returns new document object
+        // console.log(body); // returns new document object
         body._id.should.be.ok;
         body.name.should.equal("text1");
         body.value.should.equal(1);
@@ -217,11 +259,50 @@ describe('Endpoints', function() {
       });
     });
 
-  });
+    it('Update Document in a \'TEST\' collection with wrong ID', function(done) {
+      var req_body = {
+        "name": "text1",
+        "value": 0,
+        "boolean": false
+      };
 
-  describe('Documents', function() {
-    it('...', function(done) {
-      done();
+      request("http://localhost:3000/test/123", { method: "put", json: req_body }, function (err, res, body) {
+        // console.log(body); // returns new document object
+
+        res.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    it('Update Document in a \'TEST\' collection with right ID', function(done) {
+      var req_body = {
+        "name": "updated",
+        "asdf": "asdf",
+        "value": Math.floor(Math.random() * 100),
+        "boolean": true
+      };
+
+      request("http://localhost:3000/test/516b492562be100000000002", { method: "put", json: req_body }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(202);
+        done();
+      });
+    });
+
+    it('Delete Document in a \'TEST\' collection with wrong ID', function(done) {
+      request("http://localhost:3000/test/123", { method: "delete", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    xit('Delete Document in a \'TEST\' collection with right ID', function(done) {
+      request("http://localhost:3000/test/unknown", { method: "delete", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(404);
+        done();
+      });
     });
   });
 

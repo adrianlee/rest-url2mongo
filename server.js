@@ -39,6 +39,7 @@ app.get('/:collection/:id', routes.retrieve_docuemnts_by_id);
 app.post('/:collection', routes.create_document);
 app.put('/:collection/:id', routes.update_document);
 app.delete('/:collection/:id', routes.delete_document);
+app.delete('/:collection', routes.delete_documents);
 
 
 
