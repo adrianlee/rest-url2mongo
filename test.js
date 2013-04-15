@@ -182,9 +182,41 @@ describe('General', function() {
 
 describe('Endpoints', function() {
   describe('Collections', function() {
-    it('...', function(done) {
-      done();
+    it('Get Documents By Collection', function(done) {
+      request("http://localhost:3000/omg/", function (err, res, body) {
+        // console.log(body); // returns []
+        res.statusCode.should.equal(200);
+        done();
+      });
     });
+
+    it('Get Document By ID that doesn\'t exist', function(done) {
+      request("http://localhost:3000/omg/123", { json: true }, function (err, res, body) {
+        // console.log(body); // returns error: CastError
+        body.error.should.be.ok;
+        res.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    it('Create Document in a \'TEST\' collection', function(done) {
+      var req_body = {
+        "name": "text1",
+        "value": 1,
+        "boolean": true
+      };
+
+      request.post("http://localhost:3000/test/", { json: req_body }, function (err, res, body) {
+        console.log(body); // returns new document object
+        body._id.should.be.ok;
+        body.name.should.equal("text1");
+        body.value.should.equal(1);
+        body.boolean.should.equal(true);
+        res.statusCode.should.equal(201);
+        done();
+      });
+    });
+
   });
 
   describe('Documents', function() {

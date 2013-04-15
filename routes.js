@@ -116,3 +116,60 @@ routes.user_update = function (req, res) {
       });
     });
 };
+
+//////////////////////////////////////////////////
+// User
+//////////////////////////////////////////////////
+
+routes.retrieve_documents = function (req, res) {
+  console.log(req.param('collection'));
+
+  mongo.get(req.param('collection'))
+    .find({})
+    .exec(function (err, doc) {
+      if (err) return res.json(404, { error: err });
+
+      if (!doc) return res.json(200, { error: "Document Not found" });
+
+      res.json(200, doc);
+    });
+};
+
+routes.retrieve_docuemnts_by_id = function (req, res) {
+  console.log(req.param('collection'));
+  console.log(req.param('id'));
+
+  mongo.get(req.param('collection'))
+    .findById(req.param('id'))
+    .exec(function (err, doc) {
+      if (err) return res.json(404, { error: err });
+
+      if (!doc) return res.json(200, { error: "Document Not found" });
+
+      res.json(200, doc);
+    });
+};
+
+routes.create_document = function (req, res) {
+  console.log(req.param('collection'));
+
+  var newDoc = mongo.get(req.param('collection'))(req.body);
+
+  newDoc.save(function (err, doc) {
+    if (err) return res.json(505, { error: err });
+
+    res.json(201, doc);
+  });
+};
+
+routes.update_document = function (req, res) {
+  console.log(req.param('collection'));
+  console.log(req.param('id'));
+  res.json(200);
+};
+
+routes.delete_document = function (req, res) {
+  console.log(req.param('collection'));
+  console.log(req.param('id'));
+  res.json(200);
+};
