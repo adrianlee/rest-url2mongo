@@ -19,12 +19,13 @@ describe('General', function() {
         auth: {
           user: 'adrian2',
           pass: '123'
-        }
+        },
+        json: true
       };
 
       request(options, function (err, res, body) {
         if (err) return done(err);
-        body.should.equal("Not Authenticated, Unable to find user")
+        body.error.should.equal("Not Authenticated, Unable to find user")
         res.statusCode.should.equal(500);
         done();
       });
@@ -36,12 +37,13 @@ describe('General', function() {
         auth: {
           user: 'adrian',
           pass: '123s'
-        }
+        },
+        json: true
       };
 
       request(options, function (err, res, body) {
         if (err) return done(err);
-        body.should.equal("Not Authenticated, Wrong Password")
+        body.error.should.equal("Not Authenticated, Wrong Password")
         res.statusCode.should.equal(500);
         done();
       });
@@ -223,93 +225,206 @@ describe('Endpoints', function() {
   });
 
   describe('Documents', function() {
-    it('Get Document By ID that doesn\'t exist', function(done) {
-      request("http://localhost:3000/omg/123", { json: true }, function (err, res, body) {
-        // console.log(body); // returns error: CastError
-        body.error.should.be.ok;
-        res.statusCode.should.equal(404);
-        done();
+    describe('GET', function() {
+      it('Get Document By ID that doesn\'t exist', function(done) {
+        request("http://localhost:3000/omg/123", { json: true }, function (err, res, body) {
+          // console.log(body); // returns error: CastError
+          body.error.should.be.ok;
+          res.statusCode.should.equal(404);
+          done();
+        });
+      });
+
+      it('Get Document By ID that exist', function(done) {
+        request("http://localhost:3000/test/516b492562be100000000002", { json: true }, function (err, res, body) {
+          // console.log(body); // returns error: CastError
+          body._id.should.be.ok;
+          res.statusCode.should.equal(200);
+          done();
+        });
       });
     });
 
-    it('Get Document By ID that exist', function(done) {
-      request("http://localhost:3000/test/516b492562be100000000002", { json: true }, function (err, res, body) {
-        // console.log(body); // returns error: CastError
-        body._id.should.be.ok;
-        res.statusCode.should.equal(200);
-        done();
+    describe('CREATE', function() {
+      it('Create Document in a \'TEST\' collection', function(done) {
+        var req_body = {
+          "name": "text1",
+          "value": 1,
+          "boolean": true
+        };
+
+        request.post("http://localhost:3000/test/", { json: req_body }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          body._id.should.be.ok;
+          body.name.should.equal("text1");
+          body.value.should.equal(1);
+          body.boolean.should.equal(true);
+          res.statusCode.should.equal(201);
+          done();
+        });
+      });
+
+      it('Create Document in a \'TEST\' collection w/o body', function(done) {
+        var req_body = {};
+
+        request.post("http://localhost:3000/test/", { json: req_body }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          body._id.should.be.ok;
+          should.not.exist(body.name);
+          should.not.exist(body.value);
+          should.not.exist(body.boolean);
+          res.statusCode.should.equal(201);
+          done();
+        });
+      });
+
+      it('Create Document in a \'TEST\' collection w/ specified ID in URL - should fail', function(done) {
+        var req_body = {};
+
+        request.post("http://localhost:3000/test/5716938249174", { json: req_body }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          res.statusCode.should.equal(404);
+          done();
+        });
       });
     });
 
-    it('Create Document in a \'TEST\' collection', function(done) {
-      var req_body = {
-        "name": "text1",
-        "value": 1,
-        "boolean": true
-      };
+    describe('UPDATE', function() {
+      it('Update Document in a \'TEST\' collection with wrong ID', function(done) {
+        var req_body = {
+          "name": "text1",
+          "value": 0,
+          "boolean": false
+        };
 
-      request.post("http://localhost:3000/test/", { json: req_body }, function (err, res, body) {
-        // console.log(body); // returns new document object
-        body._id.should.be.ok;
-        body.name.should.equal("text1");
-        body.value.should.equal(1);
-        body.boolean.should.equal(true);
-        res.statusCode.should.equal(201);
-        done();
+        request("http://localhost:3000/test/123", { method: "put", json: req_body }, function (err, res, body) {
+          // console.log(body); // returns new document object
+
+          res.statusCode.should.equal(404);
+          done();
+        });
+      });
+
+      it('Update Document in a \'TEST\' collection with right ID', function(done) {
+        var req_body = {
+          "name": "updated",
+          "asdf": "asdf",
+          "value": Math.floor(Math.random() * 100),
+          "boolean": true
+        };
+
+        request("http://localhost:3000/test/516b492562be100000000002", { method: "put", json: req_body }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          res.statusCode.should.equal(202);
+          done();
+        });
+      });
+
+      xit('Update creates a new Doc if does not exist', function(done) {
+        var req_body = {
+          "name": "updated",
+          "asdf": "asdf",
+          "value": Math.floor(Math.random() * 100),
+          "boolean": true
+        };
+
+        request("http://localhost:3000/test", { method: "put", json: req_body }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          res.statusCode.should.equal(202);
+          done();
+        });
       });
     });
 
-    it('Update Document in a \'TEST\' collection with wrong ID', function(done) {
-      var req_body = {
-        "name": "text1",
-        "value": 0,
-        "boolean": false
-      };
 
-      request("http://localhost:3000/test/123", { method: "put", json: req_body }, function (err, res, body) {
-        // console.log(body); // returns new document object
-
-        res.statusCode.should.equal(404);
-        done();
+    describe('DELETE', function() {
+      it('Delete Document in a \'TEST\' collection with wrong ID', function(done) {
+        request("http://localhost:3000/test/123", { method: "delete", json: true }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          res.statusCode.should.equal(404);
+          done();
+        });
       });
-    });
 
-    it('Update Document in a \'TEST\' collection with right ID', function(done) {
-      var req_body = {
-        "name": "updated",
-        "asdf": "asdf",
-        "value": Math.floor(Math.random() * 100),
-        "boolean": true
-      };
-
-      request("http://localhost:3000/test/516b492562be100000000002", { method: "put", json: req_body }, function (err, res, body) {
-        // console.log(body); // returns new document object
-        res.statusCode.should.equal(202);
-        done();
-      });
-    });
-
-    it('Delete Document in a \'TEST\' collection with wrong ID', function(done) {
-      request("http://localhost:3000/test/123", { method: "delete", json: true }, function (err, res, body) {
-        // console.log(body); // returns new document object
-        res.statusCode.should.equal(404);
-        done();
-      });
-    });
-
-    xit('Delete Document in a \'TEST\' collection with right ID', function(done) {
-      request("http://localhost:3000/test/unknown", { method: "delete", json: true }, function (err, res, body) {
-        // console.log(body); // returns new document object
-        res.statusCode.should.equal(404);
-        done();
+      xit('Delete Document in a \'TEST\' collection with right ID', function(done) {
+        request("http://localhost:3000/test/unknown", { method: "delete", json: true }, function (err, res, body) {
+          // console.log(body); // returns new document object
+          res.statusCode.should.equal(404);
+          done();
+        });
       });
     });
   });
 
   describe('Queries', function() {
-    it('...', function(done) {
-      done();
+    it('Query by name', function(done) {
+      request("http://localhost:3000/test/?query={\"name\":\"updated\"}", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+
+    it('Query all', function(done) {
+      request("http://localhost:3000/test/?query={}", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+
+    it('Query Greater than Equal to 10', function(done) {
+      request("http://localhost:3000/test/?query={\"value\": { \"$gte\" : 10 } }", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+
+    it('Query Less than Equal to 50', function(done) {
+      request("http://localhost:3000/test/?query={\"value\": { \"$lte\" : 50 } }", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+
+    it('Dual Query. Less than Equal to 100 & Greater than Equal to 2', function(done) {
+      request("http://localhost:3000/test/?query={\"value\": { \"$lte\" : 100, \"$gte\" : 2 } }", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        body.length.should.equal(1);
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+
+    xit('Query. And function', function(done) {
+      request("http://localhost:3000/test/?query={\"value\": 1 }", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns new document object
+        body.length.should.not.equal(0);
+        res.statusCode.should.equal(200);
+        done();
+      });
     });
   });
 
+  describe('Sort', function() {
+    it('Sort by ID in ascending order', function(done) {
+      request("http://localhost:3000/test/?sort={\"value\": \"asc\" }", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns array in acsending order
+        should.not.exist(body[0].value);
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+
+    it('Sort by ID in descending order', function(done) {
+      request("http://localhost:3000/test/?sort={\"value\": \"desc\" }", { method: "get", json: true }, function (err, res, body) {
+        // console.log(body); // returns array in descending order
+        body[0].value.should.equal(1000);
+        res.statusCode.should.equal(200);
+        done();
+      });
+    });
+  });
 });

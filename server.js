@@ -14,14 +14,6 @@ app.use(express.bodyParser());
 // Cookie Middleware
 app.use(middleware.cookieHandler);
 
-// Error handler Middleware
-app.use(function (err, req, res, next) {
-  console.log(err);
-
-  // 500 Internal Server Error
-  res.json(500, { error: (err ? err : 'Something Broke') });
-});
-
 // General
 app.get('/', middleware.basicAuth, routes.index);
 app.get('/logout', routes.logout);
@@ -30,18 +22,24 @@ app.get('/logout', routes.logout);
 app.get('/user', middleware.basicAuth, middleware.isAdmin, routes.user_listAll);
 app.get('/user/:username', middleware.basicAuth, middleware.isAdmin, routes.user_getByUsername);
 app.post('/user', routes.user_create);
-app.put('/user/:username', middleware.basicAuth, routes.user_update);
-app.delete('/user/:username', middleware.basicAuth, routes.user_delete);
+app.put('/user/:username', middleware.basicAuth, middleware.isAdmin, routes.user_update);
+app.delete('/user/:username', middleware.basicAuth, middleware.isAdmin, routes.user_delete);
 
 // Dynamic
-app.get('/:collection', routes.retrieve_documents);
-app.get('/:collection/:id', routes.retrieve_docuemnts_by_id);
-app.post('/:collection', routes.create_document);
-app.put('/:collection/:id', routes.update_document);
-app.delete('/:collection/:id', routes.delete_document);
-app.delete('/:collection', routes.delete_documents);
+app.get('/:collection', middleware.basicAuth, middleware.hasAccessToCollection, routes.retrieve_documents);
+app.get('/:collection/:id', middleware.basicAuth, middleware.hasAccessToCollection, routes.retrieve_docuemnts_by_id);
+app.post('/:collection', middleware.basicAuth, middleware.hasAccessToCollection, routes.create_document);
+app.put('/:collection/:id', middleware.basicAuth, middleware.hasAccessToCollection,routes.update_document);
+app.delete('/:collection/:id', middleware.basicAuth, middleware.hasAccessToCollection, routes.delete_document);
+app.delete('/:collection', middleware.basicAuth, middleware.hasAccessToCollection, routes.delete_documents);
 
+// Error handler Middleware
+app.use(function (err, req, res, next) {
+  console.log(err);
 
+  // 500 Internal Server Error
+  res.json(500, { error: (err ? err : 'Something Broke') });
+});
 
 // Start server on port 8080
 app.listen(process.argv[2] || 3000);

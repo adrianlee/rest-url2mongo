@@ -19,7 +19,7 @@ routes.logout = function (req, res) {
 };
 
 //////////////////////////////////////////////////
-// User
+// Users
 //////////////////////////////////////////////////
 
 routes.user_listAll = function (req, res) {
@@ -118,14 +118,36 @@ routes.user_update = function (req, res) {
 };
 
 //////////////////////////////////////////////////
-// User
+// Documents // Collection
 //////////////////////////////////////////////////
 
 routes.retrieve_documents = function (req, res) {
   console.log(req.param('collection'));
 
+  var query = {};
+  var sort = {};
+
+  if (req.param('query')) {
+    try {
+      query = JSON.parse(req.param('query'));
+    } catch (e) {
+      //
+    }
+  }
+
+  if (req.param('sort')) {
+    try {
+      sort = JSON.parse(req.param('sort'));
+    } catch (e) {
+      //
+    }
+  }
+
+  console.log(query);
+
   mongo.get(req.param('collection'))
-    .find({})
+    .find(query)
+    .sort(sort)
     .exec(function (err, doc) {
       if (err) return res.json(404, { error: err });
 

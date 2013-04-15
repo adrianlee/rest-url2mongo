@@ -79,6 +79,7 @@ middleware.basicAuth = function (req, res, next) {
         obj.id = doc.get('_id');
         obj.is_admin = doc.get('is_admin');
         obj.username = doc.get('username');
+        obj.collection = doc.get('collection');
 
         if (doc.get('password') != password) {
           return next("Not Authenticated, Wrong Password");
@@ -108,5 +109,20 @@ middleware.isAdmin = function (req, res, next) {
     next();
   } else {
     next("User must be an admin to access this endpoint");
+  }
+};
+
+// Checks if has Access To Collection
+middleware.hasAccessToCollection = function (req, res, next) {
+  if (req.cookies.ecse489 && req.cookies.ecse489.is_admin) {
+    next();
+  } else if (req.cookies.ecse489) {
+    if (req.cookies.ecse489.collection && req.cookies.ecse489.collection[req.param('collection')]) {
+      next();
+    } else {
+      next("User does not have access to this collection");
+    }
+  } else {
+    next("User is not logged in");
   }
 };
