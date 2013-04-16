@@ -114,9 +114,11 @@ middleware.isAdmin = function (req, res, next) {
 
 // Checks if has Access To Collection
 middleware.hasAccessToCollection = function (req, res, next) {
+  // if admin
   if (req.cookies.ecse489 && req.cookies.ecse489.is_admin) {
     next();
   } else if (req.cookies.ecse489) {
+    // if has collection
     if (req.cookies.ecse489.collection && req.cookies.ecse489.collection[req.param('collection')]) {
       next();
     } else {
