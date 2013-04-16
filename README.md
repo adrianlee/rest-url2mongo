@@ -143,3 +143,7 @@ Similar to Lab 3, request results are indicated by the HTTP status code. A 2xx s
 ```
 $ mocha --reporter spec
 ```
+
+
+# Limitations but extensible.
+- ablility to update multiple documents in one query (PUT)
